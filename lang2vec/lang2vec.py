@@ -20,7 +20,7 @@ Last modified: March 25, 2019
 
 LETTER_CODES_FILE = pkg_resources.resource_filename(__name__, "data/letter_codes.json")
 FEATURE_SETS_DICT = {
-    
+    "syntax_grambank" : ( "grambank.npz", "gra", "" ),
     "syntax_wals" : ( "features.npz", "WALS", "S_" ),
     "phonology_wals": ( "features.npz", "WALS", "P_" ),
     "syntax_sswl" : ( "features.npz", "SSWL", "S_" ),
@@ -60,7 +60,7 @@ def available_uriel_languages():
     for feature_set in ["fam"]:
         filename, source, prefix = FEATURE_SETS_DICT[feature_set]
         filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
-        feature_database = np.load(filename)
+        feature_database = np.load(filename, allow_pickle = True)
         mask = np.all(feature_database["data"] != -1.0, axis=0)
         langs = [feature_database["langs"][i] for i,m in enumerate(mask) if np.sum(m)>0]
         for l in langs:
@@ -141,7 +141,7 @@ def get_id_set(lang_codes):
     #feature_database = np.load("family_features.npz")
     filename = "family_features.npz"
     filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
-    feature_database = np.load(filename)
+    feature_database = np.load(filename, allow_pickle = True)
     lang_codes = [ get_language_code(l, feature_database) for l in lang_codes ]
     all_languages = list(feature_database["langs"])
     feature_names = [ "ID_" + l.upper() for l in all_languages ]
@@ -178,7 +178,7 @@ def get_named_set(lang_codes, feature_set):
         
     filename, source, prefix = FEATURE_SETS_DICT[feature_set]
     filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
-    feature_database = np.load(filename)
+    feature_database = np.load(filename, allow_pickle = True)
     lang_codes = [ get_language_code(l, feature_database) for l in lang_codes ]
     lang_indices = [ get_language_index(l, feature_database) for l in lang_codes ]
     feature_names = get_feature_names(prefix, feature_database)
@@ -188,7 +188,7 @@ def get_named_set(lang_codes, feature_set):
     feature_values = feature_database["data"][lang_indices,:,:][:,feature_indices,:][:,:,source_index]
     for i,l in enumerate(lang_indices):
         if l == -1:
-            feature_values[i] = np.ones(features_values[i].shape)*(-1)
+            feature_values[i] = np.ones(feature_values[i].shape)*(-1)
     feature_values = feature_values.squeeze(axis=2)
     return feature_names, feature_values
 
