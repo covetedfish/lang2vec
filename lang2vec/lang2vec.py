@@ -48,6 +48,7 @@ FEATURE_SETS_DICT = {
 }
 DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances2.zip")
 DISTANCES_LANGUAGE_FILE = pkg_resources.resource_filename(__name__, "data/distances_languages.txt")
+GRAM_DISTANCE_LANGUAGES = pkg_resources.resource_filename(__name__, "data/gram_distance_langs.txt")
 
 with open(LETTER_CODES_FILE, 'r') as letter_file:
     LETTER_CODES = json.load(letter_file)
@@ -83,12 +84,21 @@ def available_distance_languages():
         l = inp.readlines()[0]
     return l.strip().split(',')
 
+
+def available_grambank_languages():
+    with open(GRAM_DISTANCE_LANGUAGES) as inp:
+        l = inp.readlines()[0]
+    return l.strip().split(',')
+
+
 LANGUAGES = available_languages()
 URIEL_LANGUAGES = available_uriel_languages()
 LEARNED_LANGUAGES = available_learned_languages()
 FEATURE_SETS = available_feature_sets()
 DISTANCE_LANGUAGES = available_distance_languages()
-DISTANCES = ["genetic", "geographic", "syntactic", "inventory", "phonological", "featural"]
+GRAM_DISTANCE_LANGUAGES = available_grambank_languages()()
+
+DISTANCES = ["genetic", "geographic", "syntactic", "inventory", "phonological", "featural", "grambank"]
 
 def get_language_code(lang_code, feature_database):
     # first, normalize to an ISO 639-3 code
@@ -376,6 +386,10 @@ def distance(distance, *args):
         distance_list = distance
     else:
         raise Exception("Unknown distance type. Provide a name (str) or a list of str.")
+    if distance == "grambank":
+        distance_langs = GRAM_DISTANCE_LANGUAGES
+    else:
+        distance_langs = DISTANCE_LANGUAGES
 
     for dist in distance_list:
         if dist not in DISTANCES:
@@ -388,9 +402,9 @@ def distance(distance, *args):
     else:
         langs = [l for l in args]
     for l in langs:
-        if l not in DISTANCE_LANGUAGES:
+        if l not in distance_langs:
             raise Exception("Unknown language " + l + " (or maybe we don't have precomputed distances for this one).")
-    indeces = [DISTANCE_LANGUAGES.index(l) for l in langs]
+    indeces = [distance_langs.index(l) for l in langs]
 
 
     N = len(indeces)
@@ -427,6 +441,10 @@ def distance(distance, *args):
 
 def geographic_distance(*args):
     return distance("geographic", *args)
+
+
+def grambank_distance(*args):
+    return distance("grambank", *args)
 
 def genetic_distance(*args):
     return distance("genetic", *args)
