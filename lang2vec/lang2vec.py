@@ -96,7 +96,7 @@ URIEL_LANGUAGES = available_uriel_languages()
 LEARNED_LANGUAGES = available_learned_languages()
 FEATURE_SETS = available_feature_sets()
 DISTANCE_LANGUAGES = available_distance_languages()
-GRAM_DISTANCE_LANGUAGES = available_grambank_languages()()
+GRAM_DISTANCE_LANGUAGES = available_grambank_languages()
 
 DISTANCES = ["genetic", "geographic", "syntactic", "inventory", "phonological", "featural", "grambank"]
 
@@ -442,9 +442,8 @@ def distance(distance, *args):
 def geographic_distance(*args):
     return distance("geographic", *args)
 
-
-def grambank_distance(*args):
-    return distance("grambank", *args)
+# def grambank_distance(*args):
+#     return distance("grambank", *args)
 
 def genetic_distance(*args):
     return distance("genetic", *args)
