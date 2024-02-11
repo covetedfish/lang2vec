@@ -15,7 +15,7 @@ Turning the convenience script into a library, for accessing the values inside t
 
 Author: Antonis Anastasopoulos
 Original Author: Patrick Littell
-Last modified: March 25, 2019
+Last modified: March 25, 2024
 '''
 
 LETTER_CODES_FILE = pkg_resources.resource_filename(__name__, "data/letter_codes.json")
