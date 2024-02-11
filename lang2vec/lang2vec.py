@@ -312,10 +312,8 @@ def fs_union(fs1,*args):
                     else:
                         fs_s.append(fs_t)
     return '|'.join(fs_s)
-    
-    
 
-def get_features(languages, feature_set_inp, header=False, minimal=False):    
+def get_features(languages, feature_set_inp, header=False, minimal=False):
     if isinstance(languages, str):
         lang_codes = languages.split()
     elif isinstance(languages, list):
@@ -343,7 +341,35 @@ def get_features(languages, feature_set_inp, header=False, minimal=False):
         values = [ '--' if f == -1 else f for f in values ]
         #print("\t".join([lang_code]+values))
         output[lang_code] = values
-    return output
+    
+
+def get_feature_match_dict(lang_codes, feature_set_inp, header=False, minimal=False):    
+
+    feature_names, feature_values = get_concatenated_sets(lang_codes, feature_set_inp)
+    feature_names = np.array([ f.replace(" ","_") for f in feature_names ])
+
+    if minimal:
+        mask = np.all(feature_values == 0.0, axis=0)
+        mask |= np.all(feature_values == 1.0, axis=0)
+        mask |= np.all(feature_values == -1.0, axis=0)
+        unmasked_indices = np.where(np.logical_not(mask))
+    else:
+        unmasked_indices = np.where(np.ones(feature_values.shape[1]))
+    
+    output = {}
+    if header:
+        output['CODE']=list(feature_names[unmasked_indices])
+        
+    for i, lang_code in enumerate(lang_codes):
+        values = feature_values[i,unmasked_indices].ravel()
+        values = [ '--' if f == -1 else f for f in values ]
+        #print("\t".join([lang_code]+values))
+        output[lang_code] = values
+    lang1 = output[lang_codes[0]]
+    lang2 = output[lang_codes[1]]
+    output = [lang1[i] == lang2[i] for i in range(len(lang1))]
+    values_dict = {feature_names[i]: output[i] for i in range(len(feature_names))}
+    return values_dict
 
 def map_distance_to_filename(distance):
     d = {"genetic": "genetic_upper_sparse.npz",
@@ -412,7 +438,7 @@ def distance(distance, *args):
         out = []
         with zf(DISTANCES_FILE, 'r') as zp:
             for dist in distance_list:
-                data = sparse.load_npz(zp.open(map_distance_to_filename(dist)))
+                data = sparse.load_npz(zp.open("distances2/"+ map_distance_to_filename(dist)))
                 if indeces[0] > indeces[1]:
                     out.append(data[indeces[1],indeces[0]])
                 else:
@@ -425,7 +451,7 @@ def distance(distance, *args):
         arr_list = [np.zeros((N,N)) for dist in distance_list]
         with zf(DISTANCES_FILE, 'r') as zp:
             for k,dist in enumerate(distance_list):
-                data = sparse.load_npz(zp.open(map_distance_to_filename(dist)))
+                data = sparse.load_npz(zp.open("distances2/"+ map_distance_to_filename(dist)))
                 for a,i in enumerate(indeces):
                     for b,j in enumerate(indeces):
                         if a != b:
@@ -442,8 +468,8 @@ def distance(distance, *args):
 def geographic_distance(*args):
     return distance("geographic", *args)
 
-# def grambank_distance(*args):
-#     return distance("grambank", *args)
+def grambank_distance(*args):
+     return distance("grambank", *args)
 
 def genetic_distance(*args):
     return distance("genetic", *args)
