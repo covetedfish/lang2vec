@@ -367,7 +367,7 @@ def get_feature_match_dict(lang_codes, feature_set_inp, header=False, minimal=Fa
         output[lang_code] = values
     lang1 = output[lang_codes[0]]
     lang2 = output[lang_codes[1]]
-    output = [lang1[i] == lang2[i] for i in range(len(lang1))]
+    output = [int(lang1[i] == lang2[i]) for i in range(len(lang1))]
     values_dict = {feature_names[i]: output[i] for i in range(len(feature_names))}
     return values_dict
 
